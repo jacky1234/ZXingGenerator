@@ -1,7 +1,9 @@
 package com.sevenheaven.zxingdemo;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,12 +43,12 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         qrcode5 = (ImageView) findViewById(R.id.qrcode5);
         qrcode6 = (ImageView) findViewById(R.id.qrcode6);
 
-        qrcode1.setImageBitmap(QRCode.createQRCode("http://www.tmtpost.com/2536837.html"));
-        qrcode2.setImageBitmap(QRCode.createQRCodeWithLogo2("http://www.jianshu.com/users/4a4eb4feee62/latest_articles", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
-        qrcode3.setImageBitmap(QRCode.createQRCodeWithLogo3("http://www.jianshu.com/users/4a4eb4feee62/latest_articles", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
-        qrcode4.setImageBitmap(QRCode.createQRCodeWithLogo4("http://www.jianshu.com/users/4a4eb4feee62/latest_articles", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
-        qrcode5.setImageBitmap(QRCode.createQRCodeWithLogo5("http://www.jianshu.com/users/4a4eb4feee62/latest_articles", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
-        qrcode6.setImageBitmap(QRCode.createQRCodeWithLogo6("http://www.jianshu.com/users/4a4eb4feee62/latest_articles", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode1.setImageBitmap(QRCode.createQRCode("https://github.com/jacky1234"));
+        qrcode2.setImageBitmap(QRCode.createQRCodeWithLogo2("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode3.setImageBitmap(QRCode.createQRCodeWithLogo3("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode4.setImageBitmap(QRCode.createQRCodeWithLogo4("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode5.setImageBitmap(QRCode.createQRCodeWithLogo5("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode6.setImageBitmap(QRCode.createQRCodeWithLogo6("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
 
         qrcode1.setOnLongClickListener(this);
         qrcode2.setOnLongClickListener(this);
@@ -74,16 +77,29 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
             final Bitmap bitmap = bitmapDrawable.getBitmap();
-            saveImageToGallery(this, bitmap);
-            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            runSaveImageWithCheck(this, bitmap);
         }
 
         return true;
     }
 
+    private final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
+    private Bitmap currentBitmap;
+
+    private void runSaveImageWithCheck(Context context, Bitmap bmp) {
+        this.currentBitmap = bmp;
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_WRITE_EXTERNAL_STORAGE);
+        } else {
+            saveImageToGallery(context, currentBitmap);
+        }
+    }
+
     /**
      * 完美解决实时更新图册功能。
      * link：http://blog.csdn.net/xu_fu/article/details/39158747
+     *
      * @param context
      * @param bmp
      */
@@ -110,10 +126,20 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         try {
             MediaStore.Images.Media.insertImage(context.getContentResolver(),
                     file.getAbsolutePath(), fileName, null);
+
+            Toast.makeText(context, "保存成功！", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         // 最后通知图库更新
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.getAbsolutePath())));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_WRITE_EXTERNAL_STORAGE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            saveImageToGallery(this, currentBitmap);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
