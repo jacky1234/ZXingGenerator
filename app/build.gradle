@@ -26,6 +26,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.0.0'
     testCompile 'junit:junit:4.12'
-    compile files('libs/zxingjar-1.1.jar')
+//    compile files('libs/zxingjar-1.1.jar')
     compile files('libs/core.jar')
 }

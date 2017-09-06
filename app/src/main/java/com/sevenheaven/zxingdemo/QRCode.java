@@ -203,6 +203,7 @@ public class QRCode {
 
     /**
      * 生成带logo的二维码
+     *
      * @param text
      * @param size
      * @param mBitmap
@@ -267,6 +268,7 @@ public class QRCode {
 
     /**
      * 修改三个顶角颜色的，带logo的二维码
+     *
      * @param text
      * @param size
      * @param mBitmap
@@ -306,7 +308,7 @@ public class QRCode {
             int[] pixels = new int[size * size];
             for (int y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
-                  if (x > halfW - IMAGE_HALFWIDTH && x < halfW + IMAGE_HALFWIDTH
+                    if (x > halfW - IMAGE_HALFWIDTH && x < halfW + IMAGE_HALFWIDTH
                             && y > halfH - IMAGE_HALFWIDTH
                             && y < halfH + IMAGE_HALFWIDTH) {
                         //该位置用于存放图片信息
@@ -316,9 +318,69 @@ public class QRCode {
                     } else {
                         if (bitMatrix.get(x, y)) {
                             pixels[y * size + x] = 0xff111111;
-                            if(x<115&&(y<115||y>=size-115)||(y<115&&x>=size-115)){
+                            if (x < 115 && (y < 115 || y >= size - 115) || (y < 115 && x >= size - 115)) {
                                 pixels[y * size + x] = 0xfff92736;
                             }
+                        } else {
+                            pixels[y * size + x] = 0xffffffff;
+                        }
+                    }
+                }
+            }
+            Bitmap bitmap = Bitmap.createBitmap(size, size,
+                    Bitmap.Config.ARGB_8888);
+            bitmap.setPixels(pixels, 0, size, 0, 0, size, size);
+            return bitmap;
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Bitmap createQRCodeWithLogo7(String text, int size, Bitmap mBitmap) {
+        try {
+            IMAGE_HALFWIDTH = size / 10;
+            Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+            /*
+             * 设置容错级别，默认为ErrorCorrectionLevel.L
+             * 因为中间加入logo所以建议你把容错级别调至H,否则可能会出现识别不了
+             */
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            BitMatrix bitMatrix = new QRCodeWriter().encode(text,
+                    BarcodeFormat.QR_CODE, size, size, hints);
+
+            //将logo图片按martix设置的信息缩放
+            mBitmap = Bitmap.createScaledBitmap(mBitmap, size, size, false);
+
+            int width = bitMatrix.getWidth();//矩阵高度
+            int height = bitMatrix.getHeight();//矩阵宽度
+            int halfW = width / 2;
+            int halfH = height / 2;
+
+            Matrix m = new Matrix();
+            float sx = (float) 2 * IMAGE_HALFWIDTH / mBitmap.getWidth();
+            float sy = (float) 2 * IMAGE_HALFWIDTH
+                    / mBitmap.getHeight();
+            m.setScale(sx, sy);
+            //设置缩放信息
+            //将logo图片按martix设置的信息缩放
+            mBitmap = Bitmap.createBitmap(mBitmap, 0, 0,
+                    mBitmap.getWidth(), mBitmap.getHeight(), m, false);
+
+            int[] pixels = new int[size * size];
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    if (x > halfW - IMAGE_HALFWIDTH && x < halfW + IMAGE_HALFWIDTH
+                            && y > halfH - IMAGE_HALFWIDTH
+                            && y < halfH + IMAGE_HALFWIDTH) {
+                        //该位置用于存放图片信息
+                        //记录图片每个像素信息
+                        pixels[y * width + x] = mBitmap.getPixel(x - halfW
+                                + IMAGE_HALFWIDTH, y - halfH + IMAGE_HALFWIDTH);
+                    } else {
+                        if (bitMatrix.get(x, y)) {
+                            pixels[y * size + x] = 0xff111111;
                         } else {
                             pixels[y * size + x] = 0xffffffff;
                         }

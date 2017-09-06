@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
     ImageView qrcode4;
     ImageView qrcode5;
     ImageView qrcode6;
+    ImageView qrcode7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         qrcode4 = (ImageView) findViewById(R.id.qrcode4);
         qrcode5 = (ImageView) findViewById(R.id.qrcode5);
         qrcode6 = (ImageView) findViewById(R.id.qrcode6);
+        qrcode7 = (ImageView) findViewById(R.id.qrcode7);
 
         qrcode1.setImageBitmap(QRCode.createQRCode("https://github.com/jacky1234"));
         qrcode2.setImageBitmap(QRCode.createQRCodeWithLogo2("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         qrcode4.setImageBitmap(QRCode.createQRCodeWithLogo4("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
         qrcode5.setImageBitmap(QRCode.createQRCodeWithLogo5("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
         qrcode6.setImageBitmap(QRCode.createQRCodeWithLogo6("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
+        qrcode7.setImageBitmap(QRCode.createQRCodeWithLogo7("https://github.com/jacky1234", 500, drawableToBitmap(getResources().getDrawable(R.drawable.head))));
 
         qrcode1.setOnLongClickListener(this);
         qrcode2.setOnLongClickListener(this);
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements ImageView.OnLongC
         qrcode4.setOnLongClickListener(this);
         qrcode5.setOnLongClickListener(this);
         qrcode6.setOnLongClickListener(this);
+        qrcode7.setOnLongClickListener(this);
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
